@@ -5,8 +5,11 @@ block content
 
   ul
   each genre in genre_list
-    li
-      a(href=genre.url) #{genre.name}
+    
+    li      
+      a(href=genre.url) #{genre.name}  
+      button.btn.btn-primary(type='submit',class='sidebar-nav') 删除
+     
     //-   |  (#{book.author.name})    
 
   else

@@ -1,7 +1,13 @@
 const Genre = require('../models/genre');
 const Book = require('../models/book');
+
 var async = require("async");
 const asyncHandler = require("express-async-handler");
+
+// const { body, validationResult } = require("express-validator/check");
+const { body, validationResult } = require("express-validator");
+// const { sanitizeBody } = require("express-validator/filter");
+
 
 // 显示完整的genre列表
 exports.genre_list = (req, resp, next) => {
@@ -9,7 +15,7 @@ exports.genre_list = (req, resp, next) => {
         .sort([['name', "ascending"]])
         .exec()
         .then(
-            (res,err) => {
+            (res, err) => {
                 resp.render("genre_list", { title: 'Genre List', genre_list: res });
             }
         )
@@ -51,33 +57,90 @@ exports.genre_list = (req, resp, next) => {
 //     );
 
 // };
+
 exports.genre_detail = asyncHandler(async (req, res, next) => {
     // 并行获取书的详细信息、书实例、作者和体裁的数量
     const [
         genre,
-        genre_books,      
+        genre_books,
     ] = await Promise.all([
         Genre.findById(req.params.id).exec(),
         Book.find({ genre: req.params.id }).exec(),
     ]);
-  
+
     res.render("genre_detail", {
-      title: "Genre Detail",
-      genre: genre,
-      genre_books: genre_books,
+        title: "Genre Detail",
+        genre: genre,
+        genre_books: genre_books,
     });
-  });
+});
 
 
 // 由 GET 显示创建流派的表单
-exports.genre_create_get = (req, res) => {
-    res.send("未实现：流派创建表单的 GET");
+// Display Genre create form on GET.
+exports.genre_create_get = function (req, res, next) {
+    // console.log(req)
+    // res.send("没有出错");
+    res.render("genre_form", { title: "Create Genre" });
+    // res.send("未实现：书本创建表单的 GET");
 };
 
+
 // 由 POST 处理流派创建操作
-exports.genre_create_post = (req, res) => {
-    res.send("未实现：创建流派的 POST");
-};
+// Handle Genre create on POST.
+exports.genre_create_post = [
+    // Validate that the name field is not empty.
+    body("name", "Genre name required").isLength({ min: 1 }).trim(),
+
+    // Sanitize (trim and escape) the name field.
+    // sanitizeBody("name").trim().escape(),
+    // validationResult(req),
+    body("name").trim().escape(),
+
+    // Process request after validation and sanitization.
+    (req, resp, next) => {
+        // console.log(req);;
+        // Extract the validation errors from a request.
+        const errors = validationResult(req);
+
+        // Create a genre object with escaped and trimmed data.
+        var genre = new Genre({ name: req.body.name });
+
+        if (!errors.isEmpty()) {
+            // There are errors. Render the form again with sanitized values/error messages.
+            resp.render("genre_form", {
+                title: "Create Genre",
+                genre: genre,
+                errors: errors.array(),
+            });
+            return;
+        } else {
+            // Data from form is valid.
+            // Check if Genre with same name already exists.
+            Genre.findOne({ name: req.body.name }).exec()
+                .then(function (found_genre,err ) {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    if (found_genre) {
+                        // Genre exists, redirect to its detail page.
+                        resp.redirect(found_genre.url);
+                    } else {
+                        genre.save()
+                            .then(function (res, err) {
+                                if (err) {
+                                    return next(err);
+                                }
+                                // Genre saved. Redirect to genre detail page.
+                                resp.redirect(genre.url);
+                            });
+                    }
+                });           
+            }
+    },
+];
+
 
 // 由 GET 显示删除流派的表单
 exports.genre_delete_get = (req, res) => {

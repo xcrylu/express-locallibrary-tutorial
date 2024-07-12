@@ -1,6 +1,8 @@
 const Author = require("../models/author");
 var Book = require("../models/book");
 
+var debug = require("debug")("author");
+
 const { body, validationResult } = require("express-validator");
 
 const asyncHandler = require("express-async-handler");
@@ -13,17 +15,19 @@ exports.author_list = function (req, resp, next) {
     .sort([["family_name", "ascending"]])
     .exec()
     .then(
-      // (err) =>{
-      //   return next(err);
-      // },
       //Successful, so render
       (res) => {
         resp.render("author_list", {
           title: "Author List",
           author_list: res,
         });
-      });
-};
+      },
+      //err 
+      (err) => {
+        debug(' author.find err:' + err);
+        return next(err);
+      })
+}
 
 // 为每位作者显示详细信息的页面
 // Display detail page for a specific Author.
@@ -88,7 +92,7 @@ exports.author_create_post = [
     .isLength({ min: 1 })
     .trim()
     .withMessage("First name must be specified.")
-    .isAlphanumeric()   
+    .isAlphanumeric()
     .withMessage("First name has non-alphanumeric characters."),
   body("family_name")
     .isLength({ min: 1 })
@@ -197,7 +201,7 @@ exports.author_delete_post = asyncHandler(async (req, res, next) => {
       });
       return;
     } else {
-     
+
       // Author has no books. Delete object and redirect to the list of authors.
       Author.findByIdAndDelete(req.body.authorid).exec().then((_, err) => {
         if (err) {

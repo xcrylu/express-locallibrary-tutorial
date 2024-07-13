@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "async": "^3.2.5",
+    "bcrypt": "^5.1.1",
     "compress": "^0.99.0",
     "compression": "^1.7.4",
     "cookie-parser": "~1.4.4",

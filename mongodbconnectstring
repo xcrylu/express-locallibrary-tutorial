@@ -1,2 +1,5 @@
+连接altas mongodb连接string：
 mongodb+srv://xcrcug:nOUnktz2V95fACIX@cluster0.8afouan.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-password: nOUnktz2V95fACIX
+
+我的mongodb云密码：password: nOUnktz2V95fACIX
+

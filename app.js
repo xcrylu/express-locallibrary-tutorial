@@ -50,7 +50,8 @@ app.use(function(err, req, res, next) {
 
 // 设置 Mongoose 连接
 const mongoose = require("mongoose");
-const mongoDB = "mongodb+srv://xcrcug:nOUnktz2V95fACIX@cluster0.8afouan.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const mongoDB = "mongodb://localhost:27017/test" ;
+// const mongoDB = "mongodb+srv://xcrcug:nOUnktz2V95fACIX@cluster0.8afouan.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 // mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;

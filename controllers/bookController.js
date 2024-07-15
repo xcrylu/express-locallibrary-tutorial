@@ -195,60 +195,60 @@ exports.book_delete_post = (req, res) => {
 exports.book_update_get = asyncHandler(async function (req, res, next) {
   // Get book, authors and genres for form.
   // console.log('step0');
-  const [    book,    authors,    genres] = await Promise.all([  
-        Book.findById(req.params.id)
-          .populate("author")
-          .populate("genre")
-          .exec(),      
-        Author.find().exec(),       
-        Genre.find().exec(),
+  const [book, authors, genres] = await Promise.all([
+    Book.findById(req.params.id)
+      .populate("author")
+      .populate("genre")
+      .exec(),
+    Author.find().exec(),
+    Genre.find().exec(),
   ]);
-    // console.log('step0.5');
-    
-      // console.log('step1');
-      // if (book==undefined) {        
-      //   return next(err);
-      // }
-      if (book == null) {     
-        // console.log('step2');
-        // No results.
-        var err = new Error("Book not found");
-        err.status = 404;
-        return next(err);
-      }
-      // Success.
-      // Mark our selected genres as checked.
-      // console.log('step3');
-      for (
-        var all_g_iter = 0;
-        all_g_iter < genres.length;
-        all_g_iter++
+  // console.log('step0.5');
+
+  // console.log('step1');
+  // if (book==undefined) {        
+  //   return next(err);
+  // }
+  if (book == null) {
+    // console.log('step2');
+    // No results.
+    var err = new Error("Book not found");
+    err.status = 404;
+    return next(err);
+  }
+  // Success.
+  // Mark our selected genres as checked.
+  // console.log('step3');
+  for (
+    var all_g_iter = 0;
+    all_g_iter < genres.length;
+    all_g_iter++
+  ) {
+    for (
+      var book_g_iter = 0;
+      book_g_iter < book.genre.length;
+      book_g_iter++
+    ) {
+      if (
+        genres[all_g_iter]._id.toString() ==
+        book.genre[book_g_iter]._id.toString()
       ) {
-        for (
-          var book_g_iter = 0;
-          book_g_iter < book.genre.length;
-          book_g_iter++
-        ) {
-          if (
-            genres[all_g_iter]._id.toString() ==
-            book.genre[book_g_iter]._id.toString()
-          ) {
-            genres[all_g_iter].checked = "true";
-          }
-        }
-      };
-      
-      // console.log('step4');
-      res.render("book_form", {
-        title: "Update Book",
-        authors: authors,
-        genres: genres,
-        book: book,
-      });   
+        genres[all_g_iter].checked = "true";
+      }
+    }
+  };
 
-   
-
+  // console.log('step4');
+  res.render("book_form", {
+    title: "Update Book",
+    authors: authors,
+    genres: genres,
+    book: book,
   });
+
+
+
+});
 
 
 // 由 POST 处理书本更新操作
@@ -304,7 +304,7 @@ exports.book_update_post = [
             Genre.find(callback);
           },
         },
-        function (err,results) {
+        function (err, results) {
           if (err) {
             return next(err);
           }
@@ -327,7 +327,7 @@ exports.book_update_post = [
       return;
     } else {
       // Data from form is valid. Update the record.
-      Book.findByIdAndUpdate(req.params.id, book, {}).then(function ( thebook,err) {
+      Book.findByIdAndUpdate(req.params.id, book, {}).then(function (thebook, err) {
         if (err) {
           return next(err);
         }

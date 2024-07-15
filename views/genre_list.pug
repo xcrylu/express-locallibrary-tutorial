@@ -3,14 +3,42 @@ extends layout
 block content
   h1= title
 
-  ul
-  each genre in genre_list
+  //- ul
+  //- each genre in genre_list
     
-    li      
-      a(href=genre.url) #{genre.name}  
-      button.btn.btn-primary(type='submit',class='sidebar-nav') 删除
-     
-    //-   |  (#{book.author.name})    
+  //-   li      
+  //-     a(href=genre.url) #{genre.name}  
+  //-     button.btn.btn-primary(type='submit',class='sidebar-nav') 删除    
+  //- else
+  //-   li There are no genre.
 
-  else
-    li There are no genre.
+  table( class="table")
+    thead
+      tr
+        //- th(  scope="col")            
+        //-   input#chk(type='checkbox'  name='chk'  value=false) 
+        //-   span 全选
+        th(  scope="col")     序号            
+        th(  scope="col")  genre
+        th(  scope="col")   
+        th(  scope="col")        
+       
+    tbody   
+     - var i = 1    
+      each genre in genre_list          
+        tr
+          //- th(  scope="col")            
+          //-   input#chk(type='checkbox'  name='chk'  onclick=)
+          th  #{i++}
+          //- td a(href=genre.url) #{genre.name}      
+          td 
+            a(href=genre.url) #{genre.name}        
+          td   
+            a(href=genre.url+"/update") 修改              
+          td 
+            a(href="/catalog/genre/"+genre.id onclick="windows.alert(成功弹出警告框！)")    删除   
+            //- a(href=genre.url+"/delete") 删除    
+             
+      //- else    There are no genre.
+      //- else There are no genre.  
+  //- - windows.alert("alert")

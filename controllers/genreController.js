@@ -1,11 +1,12 @@
 const Genre = require('../models/genre');
 const Book = require('../models/book');
+const debug = require('debug')
 
 var async = require("async");
 const asyncHandler = require("express-async-handler");
 
 // const { body, validationResult } = require("express-validator/check");
-const { body, validationResult } = require("express-validator");
+const { body, validationResult, Result } = require("express-validator");
 // const { sanitizeBody } = require("express-validator/filter");
 
 
@@ -118,7 +119,7 @@ exports.genre_create_post = [
             // Data from form is valid.
             // Check if Genre with same name already exists.
             Genre.findOne({ name: req.body.name }).exec()
-                .then(function (found_genre,err ) {
+                .then(function (found_genre, err) {
                     if (err) {
                         return next(err);
                     }
@@ -136,16 +137,34 @@ exports.genre_create_post = [
                                 resp.redirect(genre.url);
                             });
                     }
-                });           
-            }
+                });
+        }
     },
 ];
 
 
 // 由 GET 显示删除流派的表单
-exports.genre_delete_get = (req, res) => {
-    res.send("未实现：流派删除表单的 GET");
-};
+exports.genre_delete_get = (req, res,next) => {
+    Genre.findById(req.params.id).then(( genre,err0) => {
+        if(err0) return next(err0)
+        if (genre) {
+            Book.find({ genre: req.params.id }).then((books,err1) => {
+                if(err1) return next(err1);                
+                if (Array.isArray(books)&&books.length>0) { //有本genre的书本，不能删除本genre
+                    res.redirect("/catalog/genre/"+genre.id);                      
+                }else{
+                    console.log(genre.id);
+                    Genre.findByIdAndDelete(genre.id).exec();
+                    res.redirect('/catalog/genres');
+                }
+            })
+        }
+    })
+
+}
+
+
+
 
 // 由 POST 处理流派删除操作
 exports.genre_delete_post = (req, res) => {

@@ -37,6 +37,14 @@ async function main() {
   console.log("Debug: About to connect");
   await mongoose.connect(mongoDB);
   console.log("Debug: Should be connected?");
+
+  //删除原有集合，清空数据库
+  console.log('清除原有集合');
+  var db = mongoose.connection.db;
+  var colls = await db.collections();
+  await colls.forEach((val) => { val.drop() })
+  console.log('清理完成！');
+
   await createGenres();
   await createAuthors();
   await createBooks();
@@ -44,6 +52,7 @@ async function main() {
   await createRoles();
   await createUsers();
   console.log("Debug: Closing mongoose");
+
   mongoose.connection.close();
 }
 
@@ -99,22 +108,22 @@ async function bookInstanceCreate(index, book, imprint, due_back, status) {
 }
 
 async function roleCreate(index, name) {
-  const role = Role(name);
+  const role = new Role({ name: name });
   await role.save();
   roles[index] = role;
   console.log(`Added role: ${name}`);
 }
 
-async function userCreate(index, username,password, role) {
+async function userCreate(index, username, password, role) {
   const userDetail = {
-    name: username,
-    password:password,
+    username: username,
+    password: password,
   }
   if (role != false) userDetail.role = role;
-  const user = User(name, userDetail);
+  const user = new User(userDetail);
   await user.save();
   users[index] = user;
-  console.log(`Added user: ${name}`);
+  console.log(`Added user: ${username}`);
 }
 
 async function createGenres() {
@@ -239,25 +248,25 @@ async function createBookInstances() {
   ]);
 }
 
-
 async function createRoles() {
-    console.log("Adding Roles");
-    await Promise.all([
-      roleCreate(0,"administrate"),
-      roleCreate(1,"manager"),
-      roleCreate(2,"staff"),
-      roleCreate(3,"visitor"),
-    ]);
+  console.log("Adding Roles");
+  await Promise.all([
+    roleCreate(0, "administrate"),
+    roleCreate(1, "manager"),
+    roleCreate(2, "staff"),
+    roleCreate(3, "visitor"),
+  ]);
 }
 
 async function createUsers() {
   console.log("Adding Users");
   await Promise.all([
-    userCreate(0,"administrate","123456",Role[0]),
-    userCreate(1,"administrate","123456",Role[1]),
-    userCreate(2,"administrate","123456",Role[2]),
-    userCreate(3,"administrate","123456",Role[3]),
-    userCreate(5,"administrate","123456",Role[2]),
-    userCreate(6,"administrate","123456",Role[3]),
+    userCreate(0, "administrate", "123456", [roles[0]]),
+    userCreate(1, "manager", "123456", [roles[1]]),
+    userCreate(2, "staff01", "123456", [roles[2]]),
+    userCreate(3, "staff02", "123456", [roles[3]]),
+    userCreate(5, "vistor01", "123456", [roles[2]]),
+    userCreate(6, "vistor02", "123456", [roles[3]]),
   ]);
 }
+
